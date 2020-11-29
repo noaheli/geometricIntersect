@@ -152,14 +152,14 @@ public class VEBPQStruct<T extends Comparable>  {
                 minContainer = val;
             }
             if (universe > 2) {
-                int h = high(x);
-                if(clusters[h] == null) clusters[h] = new VEBPQStruct<>(high(universe));
+                int hi = high(x), lo = low(x);
+                if(clusters[hi] == null) clusters[hi] = new VEBPQStruct<>(high(universe));
                 if(summary == null) summary = new VEBPQStruct<>(high(universe));
-                if (clusters[h].treeMin() == Integer.MAX_VALUE) {
-                    summary.insert(val, high(x));
-                    clusters[high(x)].emptyTreeInsert(val, low(x));
-                    clusters[high(x)].insert(val, low(x));
-                } else clusters[high(x)].insert(val, low(x));
+                if (clusters[hi].treeMin() == Integer.MAX_VALUE) {
+                    summary.insert(val, hi);
+                    clusters[hi].emptyTreeInsert(val, lo);
+                    clusters[hi].insert(val, lo);
+                } else clusters[hi].insert(val, lo);
             }
             if (x > max) {
                 max = x;
@@ -177,6 +177,7 @@ public class VEBPQStruct<T extends Comparable>  {
      */
 
     public T delete(int x) {
+        int hi = high(x), lo = low(x);
         T ret = null;
         if(min == max) {
             ret = minContainer;
@@ -185,7 +186,7 @@ public class VEBPQStruct<T extends Comparable>  {
             minContainer = null;
             maxContainer = null;
             if(universe != 2) {
-                ret = clusters[high(x)].delete(low(x));
+                ret = clusters[hi].delete(lo);
             }
         }
         else if(universe == 2) {
@@ -210,9 +211,9 @@ public class VEBPQStruct<T extends Comparable>  {
                 ret = minContainer;
                 minContainer = minVal;
             }
-            ret = clusters[high(x)].delete(low(x));
-            if(clusters[high(x)].treeMin() == Integer.MAX_VALUE) {
-                summary.delete(high(x));
+            ret = clusters[hi].delete(lo);
+            if(clusters[hi].treeMin() == Integer.MAX_VALUE) {
+                summary.delete(hi);
                 if(x == max) {
                     int sumMax = summary.treeMax();
                     ret = maxContainer;
@@ -221,15 +222,17 @@ public class VEBPQStruct<T extends Comparable>  {
                         maxContainer = minContainer;
                     }
                     else {
-                        max = index(sumMax, clusters[sumMax].treeMax());
+                        System.out.println(truniverse + ": " + x + " | " + sumMax);
+                        int temp = clusters[sumMax].treeMax();
+                        max = index(sumMax, temp);
                         maxContainer = clusters[sumMax].treeMaxVal();
                     }
                 }
             }
             else if(x == max) {
                 ret = maxContainer;
-                max = index(high(x), clusters[high(x)].treeMax());
-                maxContainer = clusters[high(x)].treeMaxVal();
+                max = index(hi, clusters[hi].treeMax());
+                maxContainer = clusters[hi].treeMaxVal();
             }
         }
         return ret;
@@ -332,6 +335,10 @@ public class VEBPQStruct<T extends Comparable>  {
         }
         return false;
     }
+
+    //The methods below are a part of my previous implementation which ran much worse and are
+    //  now out of use.
+
     /**
      * @method shiftRight
      * @param int index

@@ -84,8 +84,8 @@ public class Sweepline {
      *  method then determines whether any segments intersect, utilizing
      *  a vEB tree to maintain the sweeping line status. Null if none.
      */
-    public boolean anySegmentsIntersectRadixSort(Line[] S) {
-            VEBPQStruct<Line> T = new VEBPQStruct<>(S.length);
+    public boolean anySegmentsIntersectRadixSort(Line[] S, int maxY) {
+            VEBPQStruct<Line> T = new VEBPQStruct<>(maxY);
             //sort the points
             Point[] points = new Point[S.length * 2];
             int j = 0;
@@ -101,8 +101,8 @@ public class Sweepline {
                 Point p = points[i];
                 Line parent = p.getParent();
                 if(p.getLeft()) {
-                    T.lineInsert(parent);
-                    //T.insert(parent, p.getY());
+                    //T.lineInsert(parent);
+                    T.insert(parent, p.getY());
                     Line a = Above(T, parent);
                     Line b = Below(T, parent);
                     if(((a != null) && parent.intersects(a)) || 
@@ -119,8 +119,8 @@ public class Sweepline {
                         System.out.println("Found with " + a.toString() + "\nand " + b.toString());
                             return true;
                     }
-                    T.delete(T.indexOf(parent));
-                    //T.delete(parent.getLeft().getY());
+                    //T.delete(T.indexOf(parent));
+                    T.delete(parent.getLeft().getY());
                 }
             }
         return false;
@@ -133,8 +133,8 @@ public class Sweepline {
      *  current sweeping line status. Null if none.
      */
     private Line Above(VEBPQStruct<Line> T, Line l) {
-        return T.get(T.treeSuccessor(T.indexOf(l)));
-        //return T.get(T.treeSuccessor(l.getLeft().getY()));
+        //return T.get(T.treeSuccessor(T.indexOf(l)));
+        return T.get(T.treeSuccessor(l.getLeft().getY()));
     }
         /**
      * @method Below
@@ -144,7 +144,7 @@ public class Sweepline {
      *  current sweeping line status. Null if none.
      */
     private Line Below(VEBPQStruct<Line> T, Line l) {
-        return T.get(T.treePredecessor(T.indexOf(l)));
-        //return T.get(T.treeSuccessor(l.getLeft().getY()));
+        //return T.get(T.treePredecessor(T.indexOf(l)));
+        return T.get(T.treePredecessor(l.getLeft().getY()));
     }
 }
